@@ -1,6 +1,14 @@
-.next
 .yalc
+
+# next
+.next
+
+# env
 .env
+
+# local database json file
+localDataBase.json
+
 # compiled output
 /dist
 /node_modules

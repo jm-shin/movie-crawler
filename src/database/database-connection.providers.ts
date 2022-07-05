@@ -6,7 +6,7 @@ export const databaseConnectionProviders = [
   {
     provide: DATABASE_CONNECTION,
     useFactory: () => {
-      const db = new JsonDB(new Config("myDataBase", true, false, '/'));
+      const db = new JsonDB(new Config("localDataBase", true, false, '/'));
       return db;
     },
     inject:[],
