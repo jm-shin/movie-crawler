@@ -1,9 +1,10 @@
-import {Inject, Injectable, InternalServerErrorException} from '@nestjs/common';
+import {Inject, Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import {DATABASE_CONNECTION} from "../database/database.constants";
 import {JsonDB} from "node-json-db";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import {ScrapInterface} from "./scrap.interface";
+import {Cron} from "@nestjs/schedule";
 
 @Injectable()
 export class ScrapService {
@@ -12,15 +13,20 @@ export class ScrapService {
     ) {
     }
 
+    private readonly logger = new Logger(ScrapService.name);
+
+    @Cron('* 30 * * * *')
     public async scrapAndSave() {
+        this.logger.debug('Called when the current minutes is 30');
+
         let crawledMovie: ScrapInterface[] = [];
 
         await axios.get('https://movie.naver.com/movie/running/current.nhn').then((response) => {
             const $ = cheerio.load(response.data);
             const $movieList = $('div.lst_wrap ul.lst_detail_t1').children('li');
             $movieList.each(function (i) {
-                const summary = $(this).find('dd dl.info_txt1')
-                    .text().replace(/\t/gi, '').replace(/\n/gi, '');
+                const summary = $(this).find('dd dl.info_txt1').text()
+                    .replace(/\t/gi, '').replace(/\n/gi, '');
                 const openDate = summary.match(/\d{4}.\d{2}.\d{2}/)?.toString();
                 const runningTime = summary.match(/(?<=\|)(.*?)(?=분\|)/g)?.toString();
                 const director = summary.match(/(?<=감독).*?(?=출연)/)?.toString().split(', ');
@@ -48,6 +54,50 @@ export class ScrapService {
             console.log('로컬 디비 저장에 실패하였습니다.')
         }
 
-        return result;
+        // return result;
+    }
+
+    public async scrapCGVMovies() {
+        this.logger.debug('Called scrapCGVMovies function');
+
+        let crawledMovie: any[] = [];
+        const movieIndex: any[] = [];
+
+        await axios.get('http://www.cgv.co.kr/movies/').then((response) => {
+            const $ = cheerio.load(response.data);
+            const $movieChart = $('div.sect-movie-chart ol').children('li');
+
+            $movieChart.each(function (i) {
+                movieIndex[i] =
+                    $(this).find('div.box-contents a[href*="/movies/"]')
+                        .attr('href')?.toString().replace('/movies/detail-view/?midx=', '');
+            });
+        }).catch((error) => {
+            this.logger.error(`${error} 같은 사유로 크롤링에 실패하였습니다.`);
+            throw new InternalServerErrorException();
+        });
+
+        const uniqueMovieIndex = movieIndex.filter((value => value != null));
+
+        // await axios.get('http://www.cgv.co.kr/movies/',).then((response) => {
+        //     const $ = cheerio.load(response.data);
+        //     const $movieList = $('div.sect-movie-chart ol').children('li');
+        //
+        //     $movieList.each(function (i) {
+        //         crawledMovie[i] = {
+        //             index: i,
+        //             title: $(this).find('div.box-contents a strong').text(),
+        //             openDate: $(this).find('div.box-contents span.txt-info strong').text()
+        //                 .replace(/\t/gi, '').replace(/\n/gi, '').replace(/ /gi, '').replace('개봉', ''),
+        //         };
+        //     });
+        // }).catch((error) => {
+        //     console.log(`${error} 같은 사유로 크롤링에 실패하였습니다.`);
+        //     throw new InternalServerErrorException();
+        // });
+        //
+        // const result = crawledMovie.filter(m => m.title);
+
+        return uniqueMovieIndex;
     }
 }
