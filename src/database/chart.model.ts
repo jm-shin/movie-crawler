@@ -1,7 +1,12 @@
-interface Chart {
-    readonly title: string;
-    readonly singer: string;
-    readonly album: string;
+interface MovieSummary {
+    readonly name: string;
+    readonly runningTime: number;
+    readonly openDate: Date;
 }
 
-export type { Chart };
+interface MovieDetail {
+    director: string[],
+    actor: string[],
+}
+
+export type {MovieSummary, MovieDetail};

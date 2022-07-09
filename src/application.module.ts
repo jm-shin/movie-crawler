@@ -6,6 +6,7 @@ import { BlogController } from './blog/blog.controller';
 import { BlogService } from './blog/blog.service';
 import { ChartModule } from './chart/chart.module';
 import { DatabaseModule } from './database/database.module';
+import { ScrapModule } from './scrap/scrap.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { DatabaseModule } from './database/database.module';
     ),
     ChartModule,
     DatabaseModule,
+    ScrapModule,
   ],
   controllers: [AppController, BlogController],
   providers: [BlogService],

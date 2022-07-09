@@ -1,8 +1,8 @@
 import {Controller, Get, Query} from "@nestjs/common";
 import {ChartService} from "./chart.service";
-import type {Chart} from "../database/chart.model";
+import {MovieSummary} from "../database/chart.model";
 
-@Controller('chart')
+@Controller('movie-chart')
 export class ChartController {
     constructor(private chartService: ChartService) {
     }
@@ -10,7 +10,7 @@ export class ChartController {
     @Get('')
     public getAllCharts(
         @Query('sort') sort: string = '100',
-    ): Promise<Chart[]> {
+    ): Promise<MovieSummary[]> {
         console.log(sort);
         return this.chartService.getChart();
     }
