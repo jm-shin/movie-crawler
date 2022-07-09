@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { RenderModule } from 'nest-next';
 import Next from 'next';
 import { AppController } from './app.controller';
-import { BlogController } from './blog/blog.controller';
-import { BlogService } from './blog/blog.service';
 import { ChartModule } from './chart/chart.module';
 import { DatabaseModule } from './database/database.module';
 import { ScrapModule } from './scrap/scrap.module';
@@ -20,7 +18,6 @@ import { ScrapModule } from './scrap/scrap.module';
     DatabaseModule,
     ScrapModule,
   ],
-  controllers: [AppController, BlogController],
-  providers: [BlogService],
+  controllers: [AppController],
 })
 export class AppModule {}
