@@ -149,26 +149,61 @@ export class ScrapService {
         return movieResult;
     }
 
-
     public async scrapDaumMoiveSummary() {
-        return await axios.get("https://movie.daum.net/api/premovie?page=1&size=35&flag=Y", {
+
+        const promiseUrls = await axios.get("https://movie.daum.net/api/premovie?page=1&size=35&flag=Y", {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
                 'Referer': 'https://movie.daum.net/premovie/theater'
             }
         }).then((response) => {
             return response.data.contents.map((movie: DaumMovieSummary) => {
-                return {
-                    id: movie.id,
-                    title: movie.titleKorean,
-                    runningTime: movie.countryMovieInformation?.duration,
-                    openDate: movie.countryMovieInformation?.releaseDate,
-                }
-            })
+                return `https://movie.daum.net/api/movie/${movie.id}/main`
+                // id: movie.id,
+                // title: movie.titleKorean,
+                // runningTime: movie.countryMovieInformation?.duration,
+                // openDate: movie.countryMovieInformation?.releaseDate,
+            });
         }).catch((error) => {
             this.logger.error(`${error} 같은 사유로 크롤링에 실패하였습니다.`);
             throw new InternalServerErrorException();
         });
-    }
+
+        function getAllData(URLs: string[]) {
+            return Promise.all(URLs.map(fetchData));
+        }
+
+        function fetchData(URL: string) {
+            return axios.get(URL)
+                .then(function (response) {
+                    const movie = response.data
+
+                    return {
+                        id: movie.movieCommon?.id,
+                        title: movie.movieCommon?.titleKorean,
+                        director: movie.casts?.filter((v: { movieJob: { role: string; }; }) => v.movieJob.role == '감독')
+                            .map((director: { nameKorean: any; }) => director.nameKorean),
+                        actor: movie.casts?.filter((v: { movieJob: { role: string; }; }) => v.movieJob.role == '주연' || v.movieJob.role == '출연')
+                            .map((actor: { nameKorean: any; }) => actor.nameKorean),
+                        runningTime: movie.movieCommon?.countryMovieInformation[0]?.duration,
+                        openDate: movie.movieCommon?.countryMovieInformation[0]?.releaseDate,
+                    };
+                })
+                .catch(function (error) {
+                    return {success: false};
+                });
+        }
+
+        const movieResult = await getAllData(promiseUrls)
+            .then((response) => {
+                console.log(response);
+                return response;
+            })
+            .catch(e => {
+                console.log(e);
+            });
+
+        return movieResult;
+    }//
 
 }
