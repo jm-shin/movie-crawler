@@ -22,8 +22,8 @@ export const ChartServiceFactory: () => MockType<ChartService> = jest.fn(
 
 export const ScrapServiceFactory: () => MockType<ScrapService> = jest.fn(
   () => ({
-      scrapingMovieFromDaumMovie: jest.fn(),
-      scrapingMovieFromNaverMovie: jest.fn(),
+      scrapingMovieFromDaum: jest.fn(),
+      scrapingMovieFromNaver: jest.fn(),
       scrapingMovieFromCGV: jest.fn(),
   }),
 );

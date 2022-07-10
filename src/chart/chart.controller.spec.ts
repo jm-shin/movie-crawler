@@ -3,8 +3,8 @@ import { ChartService } from './chart.service';
 import { ChartServiceFactory } from '../../test/mock/jest.mock';
 import { MockType } from '../../test/mock/mock.type';
 import { ChartController } from './chart.controller';
-import { CacheModule, InternalServerErrorException } from '@nestjs/common';
-import { Movie } from '../common/interface/movie.interface';
+import { CacheModule, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Movie, MovieDetail, MovieSummary } from '../common/interface/movie.interface';
 
 const movies: Movie[] = [{
   'id': 0,
@@ -35,6 +35,39 @@ const movies: Movie[] = [{
     'actor': ['크리스 헴스워스', '나탈리 포트만', '테사 톰슨', '크리스찬 베일', '타이카 와이티티', '크리스 프랫'],
   }];
 
+const movieSummary: MovieSummary[] = [
+  {
+    "id": 7,
+    "name": "헤어질 결심",
+    "runningTime": 138,
+    "openDate": "2022-06-28T15:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "name": "위대한 침묵",
+    "runningTime": 124,
+    "openDate": "2022-06-28T15:00:00.000Z"
+  },
+]
+
+const movieDetail: Movie = {
+  "id": 0,
+  "name": "토르: 러브 앤 썬더",
+  "runningTime": 119,
+  "openDate": "2022-07-05T15:00:00.000Z",
+  "director": [
+    "타이카 와이티티"
+  ],
+  "actor": [
+    "크리스 헴스워스",
+    "나탈리 포트만",
+    "테사 톰슨",
+    "크리스찬 베일",
+    "타이카 와이티티",
+    "크리스 프랫"
+  ]
+}
+
 describe('ChartController', () => {
   let controller: ChartController;
   let chartServiceMock: MockType<ChartService>;
@@ -58,12 +91,12 @@ describe('ChartController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('create', () => {
+  describe('Chart Controller create', () => {
     describe('createDaumMovieCharts', () => {
       it('should have a funtcion', () => {
         expect(typeof controller.createDaumMovieCharts).toBe('function');
       });
-      it('should call saveDaumMovieCharts', async () => {
+      it('should call saveDaumMovieCharts return movies', async () => {
         chartServiceMock.saveDaumMovieCharts.mockReturnValue(movies);
         expect(await controller.createDaumMovieCharts()).toBe(movies);
       });
@@ -86,7 +119,7 @@ describe('ChartController', () => {
       it('should have a createNaverMovieCharts funtcion', () => {
         expect(typeof controller.createNaverMovieCharts).toBe('function');
       });
-      it('should call createNaverMovieCharts', async () => {
+      it('should call createNaverMovieCharts return movies', async () => {
         chartServiceMock.saveNaverMovieCharts.mockReturnValue(movies);
         expect(await controller.createNaverMovieCharts()).toBe(movies);
       });
@@ -109,7 +142,7 @@ describe('ChartController', () => {
       it('should have a createCGVMovieCharts funtcion', () => {
         expect(typeof controller.createCGVMovieCharts).toBe('function');
       });
-      it('should call createCGVMovieCharts', async () => {
+      it('should call createCGVMovieCharts return movies', async () => {
         chartServiceMock.saveCGVMovieCharts.mockReturnValue(movies);
         expect(await controller.createCGVMovieCharts()).toBe(movies);
       });
@@ -130,10 +163,27 @@ describe('ChartController', () => {
 
   });
 
-  describe('get', () => {
+  describe('Chart Controller Get', () => {
     describe('getDaumMovieDetail', () => {
       it('should have a getDaumMovieDetail function', () => {
         expect(typeof controller.getDaumMovieDetail).toBe('function');
+      });
+      it('getDaumMovieDetail 성공이라면 한번 호출.', async () => {
+        await controller.getDaumMovieDetail(0);
+        expect(chartServiceMock.findByDaumMovieId).toHaveBeenCalledTimes(1);
+      });
+      it('movieId와 일치하는 결과가 있으면 반환한다.', async () => {
+        chartServiceMock.findByDaumMovieId.mockReturnValue(movies[0]);
+        expect(await controller.getDaumMovieDetail(0)).toBe(movies[0]);
+      });
+      it('movieId와 일치하는 결과가 없으면 404 NotFoundException', async () => {
+        chartServiceMock.findByDaumMovieId.mockReturnValue(NotFoundException);
+        try {
+          await controller.getDaumMovieDetail(2);
+        } catch (error) {
+          expect(error).toThrowError(NotFoundException);
+          expect(error).toBeInstanceOf(404);
+        }
       });
     });
 
@@ -141,11 +191,27 @@ describe('ChartController', () => {
       it('should have a getDaumMovieSummary function', () => {
         expect(typeof controller.getDaumMovieSummary).toBe('function');
       });
+      it('호출 시, findAllDaumMovieSummary가 한번 호출된다. ', async () => {
+        await controller.getDaumMovieSummary();
+        expect(chartServiceMock.findAllDaumMovieSummary).toHaveBeenCalledTimes(1);
+      });
+      it('should return movieSummary', async () => {
+        chartServiceMock.findAllDaumMovieSummary.mockReturnValue(movieSummary);
+        expect(await controller.getDaumMovieSummary()).toBe(movieSummary);
+      });
     });
 
     describe('getAllDaumMovies', () => {
       it('should have a getAllDaumMovies function', () => {
         expect(typeof controller.getAllDaumMovies).toBe('function');
+      });
+      it('호출 시, findAllDaumMovieSummary가 한번 호출된다. ', async () => {
+        await controller.getAllDaumMovies();
+        expect(chartServiceMock.findAllDaumMovie).toHaveBeenCalledTimes(1);
+      });
+      it('should return all movies', async () => {
+        chartServiceMock.findAllDaumMovie.mockReturnValue(movies);
+        expect(await controller.getAllDaumMovies()).toBe(movies);
       });
     });
 
@@ -153,17 +219,51 @@ describe('ChartController', () => {
       it('should have a getNaverMovieDetail function', () => {
         expect(typeof controller.getNaverMovieDetail).toBe('function');
       });
+      it('호출 시, findByNaverMovieId가 한번 호출된다. ', async () => {
+        await controller.getNaverMovieDetail(1);
+        expect(chartServiceMock.findByNaverMovieId).toHaveBeenCalledTimes(1);
+      });
+      it('movieId와 일치하는 결과가 있으면 반환한다.', async () => {
+        chartServiceMock.findByNaverMovieId.mockReturnValue(movies[0]);
+        expect(await controller.getNaverMovieDetail(0)).toBe(movies[0]);
+      });
+      it('movieId와 일치하는 결과가 없으면 404 NotFoundException', async () => {
+        chartServiceMock.findByNaverMovieId.mockReturnValue(NotFoundException);
+        try {
+          await controller.getNaverMovieDetail(2);
+        } catch (error) {
+          expect(error).toThrowError(NotFoundException);
+          expect(error).toBeInstanceOf(404);
+        }
+      });
+
     });
 
     describe('getNaverMovieSummary', () => {
       it('should have a getNaverMovieSummary function', () => {
         expect(typeof controller.getNaverMovieSummary).toBe('function');
       });
+      it('호출 시, findAllNaverMovie가 한번 호출된다.', async () => {
+        await controller.getNaverMovieSummary();
+        expect(chartServiceMock.findAllNaverMovieSummary).toHaveBeenCalledTimes(1);
+      });
+      it('should return movie summary', async () => {
+        chartServiceMock.findAllNaverMovieSummary.mockReturnValue(movieSummary);
+        expect(await controller.getNaverMovieSummary()).toBe(movieSummary);
+      });
     });
 
     describe('getAllNaverMovies', () => {
       it('should have a getAllNaverMovies function', () => {
         expect(typeof controller.getAllNaverMovies).toBe('function');
+      });
+      it('호출 시, findAllNaverMovie가 한번 호출된다.', async () => {
+        await controller.getAllNaverMovies();
+        expect(chartServiceMock.findAllNaverMovie).toHaveBeenCalledTimes(1);
+      });
+      it('should return all movies', async () => {
+        chartServiceMock.findAllNaverMovie.mockReturnValue(movies);
+        expect(await controller.getAllNaverMovies()).toBe(movies);
       });
     });
 
@@ -172,11 +272,36 @@ describe('ChartController', () => {
       it('should have a function', () => {
         expect(typeof controller.getCGVMovieDetail).toBe('function');
       });
+      it('호출 시, findAllNaverMovie가 한번 호출된다.', async () => {
+        await controller.getCGVMovieDetail(1);
+        expect(chartServiceMock.findByCGVMovieId).toHaveBeenCalledTimes(1);
+      });
+      it('movieId와 일치하는 결과가 있으면 반환한다.', async () => {
+        chartServiceMock.findByCGVMovieId.mockReturnValue(movies[0]);
+        expect(await controller.getCGVMovieDetail(0)).toBe(movies[0]);
+      });
+      it('movieId와 일치하는 결과가 없으면 404 NotFoundException', async () => {
+        chartServiceMock.findByCGVMovieId.mockReturnValue(NotFoundException);
+        try {
+          await controller.getCGVMovieDetail(2);
+        } catch (error) {
+          expect(error).toThrowError(NotFoundException);
+          expect(error).toBeInstanceOf(404);
+        }
+      });
     });
 
     describe('getCGVMovieSummary', () => {
       it('should have a function', () => {
         expect(typeof controller.getCGVMovieSummary).toBe('function');
+      });
+      it('호출 시, findAllCGVMovieSummary가 한번 호출된다.', async () => {
+        await controller.getCGVMovieSummary();
+        expect(chartServiceMock.findAllCGVMovieSummary).toHaveBeenCalledTimes(1);
+      });
+      it('should return movies summary', async () => {
+        chartServiceMock.findAllCGVMovieSummary.mockReturnValue(movieSummary);
+        expect(await controller.getCGVMovieSummary()).toBe(movieSummary);
       });
     });
 
@@ -184,7 +309,14 @@ describe('ChartController', () => {
       it('should have a getAllCGVMovies function', () => {
         expect(typeof controller.getAllCGVMovies).toBe('function');
       });
-
+      it('호출 시, findAllCGVMovie가 한번 호출된다.', async () => {
+        await controller.getAllCGVMovies();
+        expect(chartServiceMock.findAllCGVMovie).toHaveBeenCalledTimes(1);
+      });
+      it('should return movies summary', async () => {
+        chartServiceMock.findAllCGVMovie.mockReturnValue(movies);
+        expect(await controller.getAllCGVMovies()).toBe(movies);
+      });
     });
   });
 });

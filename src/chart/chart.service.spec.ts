@@ -6,6 +6,7 @@ import { repositoryMockFactory, ScrapServiceFactory } from '../../test/mock/jest
 import { DatabaseModule } from '../database/database.module';
 import { ScrapService } from '../scrap/scrap.service';
 import { Movie } from '../common/interface/movie.interface';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 const movies: Movie[] = [{
   'id': 0,
@@ -66,26 +67,211 @@ describe('ChartService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should get daum movies', async () => {
-    scrapService.scrapingMovieFromDaumMovie.mockReturnValue([]);
-    const daumMovies = await service.saveDaumMovieCharts();
-    expect(daumMovies).toEqual([]);
+  describe('saveDaumMovieCharts', () => {
+    it('should get daum movies', async () => {
+      scrapService.scrapingMovieFromDaum.mockReturnValue([]);
+      expect(await service.saveDaumMovieCharts()).toEqual([]);
+    });
+    it('호출 시, scrapingMovieFromDaum는 한번 호출된다.', async () => {
+      await service.saveDaumMovieCharts();
+      expect(scrapService.scrapingMovieFromDaum).toHaveBeenCalledTimes(1);
+    });
+    it('성공시, movies를 리턴한다.', async () => {
+      scrapService.scrapingMovieFromDaum.mockReturnValue(movies);
+      await expect(service.saveDaumMovieCharts()).resolves.toBe(movies);
+    });
+    it('스크랩 실패시, 500 에러를 반환', async () => {
+      scrapService.scrapingMovieFromDaum.mockReturnValue(InternalServerErrorException);
+      try {
+        await expect(service.saveDaumMovieCharts());
+      } catch (error) {
+        expect(error).toThrowError(InternalServerErrorException);
+        expect(error).toBeInstanceOf(500);
+      }
+    });
   });
 
-  it('should get naver movies', async () => {
-    scrapService.scrapingMovieFromNaverMovie.mockReturnValue([]);
-    const naverMovies = await service.saveNaverMovieCharts();
-    expect(naverMovies).toEqual([]);
+  describe('saveNaverMovieCharts', () => {
+    it('should get naver movies', async () => {
+      scrapService.scrapingMovieFromNaver.mockReturnValue([]);
+      expect(await service.saveNaverMovieCharts()).toEqual([]);
+    });
+    it('호출 시, scrapingMovieFromNaver는 한번 호출된다.', async () => {
+      await service.saveNaverMovieCharts();
+      expect(scrapService.scrapingMovieFromNaver).toHaveBeenCalledTimes(1);
+    });
+    it('성공시, movies를 리턴한다.', async () => {
+      scrapService.scrapingMovieFromNaver.mockReturnValue(movies);
+      await expect(service.saveNaverMovieCharts()).resolves.toBe(movies);
+    });
+    it('스크랩 실패시, 500 에러를 반환', async () => {
+      scrapService.scrapingMovieFromNaver.mockReturnValue(InternalServerErrorException);
+      try {
+        await expect(service.saveNaverMovieCharts());
+      } catch (error) {
+        expect(error).toThrowError(InternalServerErrorException);
+        expect(error).toBeInstanceOf(500);
+      }
+    });
   });
 
-  it('should get cgv movies', async () => {
-    scrapService.scrapingMovieFromCGV.mockReturnValue([]);
-    const cgvMovies = await service.saveCGVMovieCharts();
-    expect(cgvMovies).toEqual([]);
+  describe('saveCGVMovieCharts', () => {
+    it('should get cgv movies', async () => {
+      scrapService.scrapingMovieFromCGV.mockReturnValue([]);
+      expect(await service.saveCGVMovieCharts()).toEqual([]);
+    });
+    it('호출 시, scrapingMovieFromCGV는 한번 호출된다.', async () => {
+      await service.saveCGVMovieCharts();
+      expect(scrapService.scrapingMovieFromCGV).toHaveBeenCalledTimes(1);
+    });
+    it('성공시, movies를 리턴한다.', async () => {
+      scrapService.scrapingMovieFromCGV.mockReturnValue(movies);
+      await expect(service.saveCGVMovieCharts()).resolves.toBe(movies);
+    });
+    it('스크랩 실패시, 500 에러를 반환', async () => {
+      scrapService.scrapingMovieFromCGV.mockReturnValue(InternalServerErrorException);
+      try {
+        await expect(service.saveCGVMovieCharts());
+      } catch (error) {
+        expect(error).toThrowError(InternalServerErrorException);
+        expect(error).toBeInstanceOf(500);
+      }
+    });
   });
 
-  it('if not found throw an NotFoundException', async () => {
-    repositoryMock.getObject.mockReturnValueOnce(movies);
-
+  describe('findByDaumMovieId', () => {
+    it('should have a findByDaumMovieId function', () => {
+      expect(typeof service.findByDaumMovieId).toBe('function');
+    });
+    it('movieId와 일치하는 결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findByDaumMovieId(2);
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
   });
+
+  describe('findAllDaumMovieSummary', () => {
+    it('should have a findAllDaumMovieSummary function', () => {
+      expect(typeof service.findAllDaumMovieSummary).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findAllDaumMovieSummary();
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
+  describe('findAllDaumMovie', () => {
+    it('should have a findAllDaumMovie function', () => {
+      expect(typeof service.findAllDaumMovie).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findAllDaumMovie();
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
+  describe('findByNaverMovieId', () => {
+    it('should have a findByNaverMovieId function', () => {
+      expect(typeof service.findByNaverMovieId).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findByNaverMovieId(5);
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
+  describe('findAllNaverMovieSummary', () => {
+    it('should have a findAllNaverMovieSummary function', () => {
+      expect(typeof service.findAllNaverMovieSummary).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findAllNaverMovieSummary();
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
+  describe('findAllNaverMovie', () => {
+    it('should have a findAllNaverMovie function', () => {
+      expect(typeof service.findAllNaverMovie).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findAllNaverMovie();
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
+  describe('findByCGVMovieId', () => {
+    it('should have a findByCGVMovieId function', () => {
+      expect(typeof service.findByCGVMovieId).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findByCGVMovieId(7);
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
+  describe('findAllCGVMovieSummary', () => {
+    it('should have a findAllCGVMovieSummary function', () => {
+      expect(typeof service.findAllCGVMovieSummary).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findAllCGVMovieSummary();
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
+  describe('findAllCGVMovie', () => {
+    it('should have a findAllCGVMovie function', () => {
+      expect(typeof service.findAllCGVMovie).toBe('function');
+    });
+    it('결과가 없으면 404 NotFoundException', async () => {
+      repositoryMock.getObject.mockReturnValue(NotFoundException);
+      try {
+        await service.findAllCGVMovie();
+      } catch (error) {
+        expect(error).toThrowError(NotFoundException);
+        expect(error).toBeInstanceOf(404);
+      }
+    });
+  });
+
 });

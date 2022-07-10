@@ -18,7 +18,7 @@ export class ChartService {
   public async saveDaumMovieCharts(): Promise<void | Awaited<Movie>[]> {
     try {
       this.logger.debug('start saveDaumMovieCharts');
-      return await this.scrapService.scrapingMovieFromDaumMovie();
+      return await this.scrapService.scrapingMovieFromDaum();
     } catch (error) {
       this.logger.error('saveDaumMovieCharts error!');
       throw new InternalServerErrorException();
@@ -71,7 +71,7 @@ export class ChartService {
   // 네이버 영화 스크래핑
   public async saveNaverMovieCharts(): Promise<Movie[]> {
     try {
-      return await this.scrapService.scrapingMovieFromNaverMovie();
+      return await this.scrapService.scrapingMovieFromNaver();
     } catch (err) {
       this.logger.error('testingCheerio error!');
       throw new InternalServerErrorException();

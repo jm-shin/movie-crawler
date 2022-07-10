@@ -1,4 +1,5 @@
 interface Movie extends MovieSummary, MovieDetail {
+    readonly id: number,
 }
 
 interface MovieSummary {
@@ -9,6 +10,7 @@ interface MovieSummary {
 }
 
 interface MovieDetail {
+    readonly id?: number,
     readonly director: string[],
     readonly actor: string[],
 }

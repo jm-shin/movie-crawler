@@ -16,7 +16,7 @@ export class ScrapService {
   }
 
   //TODO: Cron () 30분 간격
-  public async scrapingMovieFromDaumMovie(): Promise<void | Awaited<Movie>[]> {
+  public async scrapingMovieFromDaum(): Promise<void | Awaited<Movie>[]> {
     try {
       const promiseUrls = await axios.get(TARGET_URL_DAUM).then((response) => {
         return response.data.contents.map((movie: DaumMovieSummary) => {
@@ -59,7 +59,7 @@ export class ScrapService {
     }
   }
 
-  public async scrapingMovieFromNaverMovie(): Promise<Movie[]> {
+  public async scrapingMovieFromNaver(): Promise<Movie[]> {
 
     this.logger.debug('start scrapingMovieListFromNaverMovie...');
 
