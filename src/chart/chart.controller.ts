@@ -11,30 +11,15 @@ export class ChartController {
     }
 
     private readonly logger = new Logger(ChartController.name);
-
-    // 모든 영화 목록 & 상세정보 크롤링
-    @Get('naver/movies')
-    public getAllCharts() {
-        this.logger.debug('start! getHtml');
-        return this.chartService.testingCheerio();
-    }
-
-    // 상세 정보
-    @Get('naver/movie/:movieId')
-    public getChartDetail(
-        @Param('movieId') movieId: number,
-    ): Promise<MovieSummary> {
-        console.log(`find index: ${movieId}`);
-        return this.chartService.getChartDetail(movieId);
-    }
-
+    
+    // CGV
     @Get('cgv/movies')
     public getAllChartByCGV() {
         this.logger.debug('getAllChartByCGV');
         return this.chartService.getAllChartByCGV();
     }
     
-    //다음 영화
+    // 다음 영화
     // 다음 영화 스크래핑
     @Post('daum/movies')
     public createDaumMovieCharts() {
@@ -63,5 +48,36 @@ export class ChartController {
     public getAllDaumMovies() {
         this.logger.debug('start getAllDaumMovies');
         return this.chartService.findAllDaumMovie();
+    }
+
+    // 네이버 영화
+    // 네이버 영화 모든 영화 목록 & 상세정보 크롤링
+    @Post('naver/movies')
+    public createNaverMovieCharts() {
+        this.logger.debug('start! getHtml');
+        return this.chartService.saveNaverMovieCharts();
+    }
+
+    // 네이버 영화 상세 정보
+    @Get('naver/movie/:movieId')
+    public getNaverMovieDetail(
+        @Param('movieId') movieId: number,
+    ): Promise<MovieSummary> {
+        console.log(`find id: ${movieId}`);
+        return this.chartService.findByNaverMovieId(movieId);
+    }
+
+    // 네이버 영화 목록
+    @Get('naver/summary')
+    public getNaverMovieSummary() {
+        this.logger.debug('start getNaverMovieSummary');
+        return this.chartService.findAllNaverMovieSummary();
+    }
+
+    // 네이버 모든 영화 목록 & 상세보기
+    @Get('naver/movies')
+    public getAllNaverMovies() {
+        this.logger.debug('start getAllNaverMovies...');
+        return this.chartService.findAllNaverMovie();
     }
 }

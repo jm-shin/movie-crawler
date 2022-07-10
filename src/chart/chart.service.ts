@@ -1,7 +1,7 @@
 import {Inject, Injectable, InternalServerErrorException, Logger, NotFoundException} from "@nestjs/common";
 import {DATABASE_CONNECTION} from "../database/database.constants";
 import {JsonDB} from "node-json-db";
-import {MovieSummary} from "../database/chart.model";
+import {Movie, MovieSummary} from "../database/chart.model";
 import {ScrapService} from "../scrap/scrap.service";
 
 @Injectable()
@@ -14,26 +14,7 @@ export class ChartService {
 
     private readonly logger = new Logger(ChartService.name);
 
-    public async getChartDetail(movieId: number): Promise<MovieSummary> {
-
-        const result: MovieSummary[] = this.db.getObject<MovieSummary[]>("/chart/naver");
-
-        if (result === null) {
-            throw new NotFoundException();
-        }
-
-        return result[movieId];
-    }
-
-    public async testingCheerio() {
-        try {
-            return await this.scrapService.scrapAndSave();
-        } catch (err) {
-            this.logger.error('testingCheerio error!');
-            throw new InternalServerErrorException();
-        }
-    }
-
+    // CGV
     public async getAllChartByCGV() {
         try {
             return await this.scrapService.scrapCGVMovies();
@@ -43,16 +24,6 @@ export class ChartService {
         }
     }
 
-    public async getAllChartByDaum() {
-        try {
-            // return await this.scrapService.scrapDaumMoiveSummary();
-        } catch (error) {
-            this.logger.error('getAllChartByDaum error!');
-            throw new InternalServerErrorException();
-        }
-    }
-
-    // new daum
     // 다음영화 스크래핑
     public async saveDaumMovieCharts() {
         try {
@@ -103,4 +74,56 @@ export class ChartService {
             throw new NotFoundException();
         }
     }
+
+    // 네이버
+    // 네이버 영화 스크래핑
+    public async saveNaverMovieCharts() {
+        try {
+            return await this.scrapService.scrapingMovieListFromNaverMovie();
+        } catch (err) {
+            this.logger.error('testingCheerio error!');
+            throw new InternalServerErrorException();
+        }
+    }
+
+    // 네이버 영화 상세정보
+    public async findByNaverMovieId(movieId: number): Promise<MovieSummary> {
+        const result: MovieSummary[] = this.db.getObject<MovieSummary[]>("/chart/naver");
+
+        if (result === null) {
+            throw new NotFoundException();
+        }
+        return result[movieId];
+    }
+
+    // 네이버 영화 목록
+    public async findAllNaverMovieSummary() {
+        try {
+            this.logger.debug('start findAllNaverMovieSummary...');
+            const movieList = this.db.getObject<any[]>("/chart/naver");
+            return movieList.map((movieInfo) => {
+                return {
+                    id: movieInfo.id,
+                    name: movieInfo.name,
+                    runningTime:movieInfo.runningTime,
+                    openDate:movieInfo.openDate,
+                }
+            });
+        } catch (error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
+
+    // 네이버 모든 영화 목록 & 상세 정보
+    public async findAllNaverMovie() {
+        try {
+            this.logger.debug('start findAllNaverMovie...');
+            return this.db.getObject<Movie[]>("/chart/naver");
+        } catch (error) {
+            this.logger.error('saveDaumMovieCharts error!');
+            throw new NotFoundException();
+        }
+    }
+
 }

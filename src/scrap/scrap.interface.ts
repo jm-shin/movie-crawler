@@ -1,6 +1,6 @@
 export interface ScrapInterface{
-    readonly index: number,
-    readonly title: string,
+    readonly id: number,
+    readonly name: string,
     readonly runningTime: number,
     readonly openDate?: Date | null,
     readonly director?: string[],

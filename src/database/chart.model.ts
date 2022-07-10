@@ -1,3 +1,11 @@
+interface Movie {
+    readonly name: string;
+    readonly runningTime: number;
+    readonly openDate: Date;
+    director: string[],
+    actor: string[],
+}
+
 interface MovieSummary {
     readonly name: string;
     readonly runningTime: number;
@@ -15,4 +23,4 @@ interface DaumMovieSummary {
     countryMovieInformation: { duration: number; releaseDate: string; };
 }
 
-export type {MovieSummary, MovieDetail, DaumMovieSummary};
+export type {Movie, MovieSummary, MovieDetail, DaumMovieSummary};

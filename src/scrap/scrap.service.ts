@@ -4,7 +4,6 @@ import {JsonDB} from "node-json-db";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import {ScrapInterface} from "./scrap.interface";
-import {Cron} from "@nestjs/schedule";
 import {DaumMovieSummary} from "../database/chart.model";
 
 @Injectable()
@@ -15,49 +14,6 @@ export class ScrapService {
     }
 
     private readonly logger = new Logger(ScrapService.name);
-
-    @Cron("* 30 * * * *")
-    public async scrapAndSave() {
-        this.logger.debug("Called when the current minutes is 30");
-
-        let crawledMovie: ScrapInterface[] = [];
-
-        await axios.get("https://movie.naver.com/movie/running/current.nhn").then((response) => {
-            const $ = cheerio.load(response.data);
-            const $movieList = $("div.lst_wrap ul.lst_detail_t1").children("li");
-            $movieList.each(function (i) {
-                const summary = $(this).find("dd dl.info_txt1").text()
-                    .replace(/\t/gi, "").replace(/\n/gi, "");
-                const openDate = summary.match(/\d{4}.\d{2}.\d{2}/)?.toString();
-                const runningTime = summary.match(/(?<=\|)(.*?)(?=분\|)/g)?.toString();
-                const director = summary.match(/(?<=감독).*?(?=출연)/)?.toString().split(", ");
-                const actor = summary.match(/(?<=출연).*/)?.toString().split(", ");
-
-                crawledMovie[i] = {
-                    index: i,
-                    title: $(this).find("dt.tit a").text(),
-                    runningTime: runningTime ? Number(runningTime) : 0,
-                    openDate: openDate ? new Date(openDate) : null,
-                    director: director,
-                    actor: actor
-                };
-            });
-        }).catch((error) => {
-            console.log(`${error} 같은 사유로 크롤링에 실패하였습니다.`);
-            throw new InternalServerErrorException();
-        });
-
-        const result = crawledMovie.filter(m => m.title);
-
-        try {
-            await this.db.push("/chart/naver", result);
-        } catch (error) {
-            console.log("로컬 디비 저장에 실패하였습니다.");
-        }
-
-        this.logger.debug("호출 종단부");
-        return result;
-    }
 
     public async scrapCGVMovies() {
         this.logger.debug("Called scrapCGVMovies function");
@@ -171,12 +127,12 @@ export class ScrapService {
                         return {
                             id: movie.movieCommon?.id,
                             name: movie.movieCommon?.titleKorean,
+                            runningTime: movie.movieCommon?.countryMovieInformation[0]?.duration,
+                            openDate: movie.movieCommon?.countryMovieInformation[0]?.releaseDate,
                             director: movie.casts?.filter((v: { movieJob: { role: string; }; }) => v.movieJob.role == '감독')
                                 .map((director: { nameKorean: string; }) => director.nameKorean),
                             actor: movie.casts?.filter((v: { movieJob: { role: string; }; }) => v.movieJob.role == '주연' || v.movieJob.role == '출연')
                                 .map((actor: { nameKorean: string; }) => actor.nameKorean),
-                            runningTime: movie.movieCommon?.countryMovieInformation[0]?.duration,
-                            openDate: movie.movieCommon?.countryMovieInformation[0]?.releaseDate,
                         };
                     })
                     .catch(function (error) {
@@ -210,6 +166,47 @@ export class ScrapService {
             this.logger.error(`${error} 같은 사유로 크롤링에 실패하였습니다.`);
             throw new InternalServerErrorException();
         }
+    }//
+
+    public async scrapingMovieListFromNaverMovie() {
+
+        this.logger.debug("start scrapingMovieListFromNaverMovie...");
+
+        let crawledMovie: ScrapInterface[] = [];
+
+        await axios.get("https://movie.naver.com/movie/running/current.nhn").then((response) => {
+            const $ = cheerio.load(response.data);
+            const $movieList = $("div.lst_wrap ul.lst_detail_t1").children("li");
+            $movieList.each(function (i) {
+                const summary = $(this).find("dd dl.info_txt1").text()
+                    .replace(/\t/gi, "").replace(/\n/gi, "");
+                const openDate = summary.match(/\d{4}.\d{2}.\d{2}/)?.toString();
+                const runningTime = summary.match(/(?<=\|)(.*?)(?=분\|)/g)?.toString();
+                const director = summary.match(/(?<=감독).*?(?=출연)/)?.toString().split(", ");
+                const actor = summary.match(/(?<=출연).*/)?.toString().split(", ");
+
+                crawledMovie[i] = {
+                    id: i,
+                    name: $(this).find("dt.tit a").text(),
+                    runningTime: runningTime ? Number(runningTime) : 0,
+                    openDate: openDate ? new Date(openDate) : null,
+                    director: director,
+                    actor: actor
+                };
+            });
+        }).catch((error) => {
+            this.logger.error(`${error} fail.`);
+            throw new InternalServerErrorException();
+        });
+
+        const result = crawledMovie.filter(m => m.name);
+
+        try {
+            await this.db.push("/chart/naver", result);
+        } catch (error) {
+            this.logger.error("naver movie list save fail!");
+        }
+        return result;
     }//
 
 }
