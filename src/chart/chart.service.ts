@@ -1,7 +1,7 @@
 import {Inject, Injectable, InternalServerErrorException, Logger, NotFoundException} from "@nestjs/common";
 import {DATABASE_CONNECTION} from "../database/database.constants";
 import {JsonDB} from "node-json-db";
-import {Movie, MovieSummary} from "../database/chart.model";
+import {Movie, MovieSummary} from "../common/interface/movie.interface";
 import {ScrapService} from "../scrap/scrap.service";
 
 @Injectable()
@@ -14,18 +14,8 @@ export class ChartService {
 
     private readonly logger = new Logger(ChartService.name);
 
-    // CGV
-    public async getAllChartByCGV() {
-        try {
-            return await this.scrapService.scrapCGVMovies();
-        } catch (err) {
-            this.logger.error('getAllChartByCGV error!');
-            throw new InternalServerErrorException();
-        }
-    }
-
     // 다음영화 스크래핑
-    public async saveDaumMovieCharts() {
+    public async saveDaumMovieCharts(): Promise<void | Awaited<Movie | { success: boolean }>[]> {
         try {
             this.logger.debug('start saveDaumMovieCharts');
             return await this.scrapService.scrapingMovieListFromDaumMovie();
@@ -35,18 +25,19 @@ export class ChartService {
     }
 
     // 상세정보(id)
-    public async findByDaumMovieId(movieId: number): Promise<any> {
+    public async findByDaumMovieId(movieId: number): Promise<MovieSummary> {
         try {
             // db 조회
             const movieList = this.db.getObject<any[]>("/chart/daum");
             return movieList.filter((movie) => movie.id == movieId)[0];
         } catch (error) {
             this.logger.error('saveDaumMovieCharts error!');
+            throw new NotFoundException();
         }
     }
 
     // 영화 목록
-    public async findAllDaumMovieSummary() {
+    public async findAllDaumMovieSummary(): Promise<MovieSummary[]> {
         try {
             this.logger.debug('start findAllDaumMovieSummary');
             const movieList = this.db.getObject<any[]>("/chart/daum");
@@ -65,7 +56,7 @@ export class ChartService {
     }
 
     // 모든 다음 영화 목록 & 상세정보
-    public async findAllDaumMovie() {
+    public async findAllDaumMovie(): Promise<Movie[]> {
         try {
             this.logger.debug('start findAllDaumMovie');
             return this.db.getObject<any[]>("/chart/daum");
@@ -77,7 +68,7 @@ export class ChartService {
 
     // 네이버
     // 네이버 영화 스크래핑
-    public async saveNaverMovieCharts() {
+    public async saveNaverMovieCharts(): Promise<Movie[]> {
         try {
             return await this.scrapService.scrapingMovieListFromNaverMovie();
         } catch (err) {
@@ -97,7 +88,7 @@ export class ChartService {
     }
 
     // 네이버 영화 목록
-    public async findAllNaverMovieSummary() {
+    public async findAllNaverMovieSummary(): Promise<MovieSummary[]> {
         try {
             this.logger.debug('start findAllNaverMovieSummary...');
             const movieList = this.db.getObject<any[]>("/chart/naver");
@@ -116,7 +107,7 @@ export class ChartService {
     }
 
     // 네이버 모든 영화 목록 & 상세 정보
-    public async findAllNaverMovie() {
+    public async findAllNaverMovie(): Promise<Movie[]> {
         try {
             this.logger.debug('start findAllNaverMovie...');
             return this.db.getObject<Movie[]>("/chart/naver");
@@ -126,4 +117,60 @@ export class ChartService {
         }
     }
 
+    // CGV
+    // CGV 영화 목록 스크래핑
+    public async saveCGVMovieCharts() {
+        try {
+            return await this.scrapService.scrapingMovieListFromCGV();
+        } catch (err) {
+            this.logger.error('getAllChartByCGV error!');
+            throw new InternalServerErrorException();
+        }
+    }
+
+    // CGV 영화 상세보기
+    public async findByCGVMovieId(movieId: number):Promise<MovieSummary> {
+        try {
+            this.logger.debug('start findByCGVMovieId...');
+            const result: MovieSummary[] = this.db.getObject<MovieSummary[]>("/chart/cgv");
+
+            if (result === null) {
+                throw new NotFoundException();
+            }
+            return result[movieId];
+        } catch (error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
+
+    // CGV 영화 목록
+    public async findAllCGVMovieSummary(): Promise<MovieSummary[]> {
+        try {
+            this.logger.debug('start findAllCGVMovieSummary...');
+            const movieList = this.db.getObject<any[]>("/chart/cgv");
+            return movieList.map((movieInfo) => {
+                return {
+                    id: movieInfo.id,
+                    name: movieInfo.name,
+                    runningTime:movieInfo.runningTime,
+                    openDate:movieInfo.openDate,
+                }
+            });
+        } catch (error) {
+            this.logger.error(error);
+            throw new NotFoundException();
+        }
+    }
+
+    // 모든 CGV 영화 목록 & 상세보기
+    public async findAllCGVMovie(): Promise<Movie[]>  {
+        try {
+            this.logger.debug('start findAllCGVMovie...');
+            return this.db.getObject<Movie[]>("/chart/cgv");
+        } catch (error) {
+            this.logger.error('saveDaumMovieCharts error!');
+            throw new NotFoundException();
+        }
+    }
 }
