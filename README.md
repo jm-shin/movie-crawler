@@ -2,18 +2,19 @@
 
 다음은 구현한 내용입니다.
 
-- TypeScript로 구현
-- axios, nest.js, jest, node-json-db를 활용
-- cheerio 사용
-- winston을 사용하여 middleware 방식으로 로깅
-- cache-manager를 사용해 GET 메서드 캐싱 (3분)
-- unit test
-- cron. 매 30분마다 스크래핑 후 local db에 저장.
-- 별도의 POST 메서드. 사용자가 조작할 수 있는 스크래핑 기능 추가
+* TypeScript로 구현
+* axios, nest.js, jest, node-json-db를 활용
+* cheerio 사용
+* winston을 사용하여 middleware 방식으로 로깅
+* cache-manager를 사용해 GET 메서드 캐싱 (3분)
+* unit test
+* cron. 매 30분마다 스크래핑 후 local db에 저장
+* 별도의 POST 메서드. 사용자가 조작할 수 있는 스크래핑 기능 추가
 
 ## 기능 명세
 
-vendor는 "daum" | "naver" | "cgv" 입니다.
+* vendor는 "daum" | "naver" | "cgv"
+* default port: 3000
 
 |URL|method|description|
 |---|---|---|
