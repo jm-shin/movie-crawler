@@ -29,7 +29,7 @@ export class ChartService {
         try {
             return await this.scrapService.scrapAndSave();
         } catch (err) {
-            this.logger.error('testingCheerio 에러 발생');
+            this.logger.error('testingCheerio error!');
             throw new InternalServerErrorException();
         }
     }
@@ -38,17 +38,69 @@ export class ChartService {
         try {
             return await this.scrapService.scrapCGVMovies();
         } catch (err) {
-            this.logger.error('getAllChartByCGV 에러 발생');
+            this.logger.error('getAllChartByCGV error!');
             throw new InternalServerErrorException();
         }
     }
 
     public async getAllChartByDaum() {
         try {
-            return await this.scrapService.scrapDaumMoiveSummary();
+            // return await this.scrapService.scrapDaumMoiveSummary();
         } catch (error) {
-            this.logger.error('getAllChartByDaum 에러 발생');
+            this.logger.error('getAllChartByDaum error!');
             throw new InternalServerErrorException();
+        }
+    }
+
+    // new daum
+    // 다음영화 스크래핑
+    public async saveDaumMovieCharts() {
+        try {
+            this.logger.debug('start saveDaumMovieCharts');
+            return await this.scrapService.scrapingMovieListFromDaumMovie();
+        } catch (error) {
+            this.logger.error('saveDaumMovieCharts error!');
+        }
+    }
+
+    // 상세정보(id)
+    public async findByDaumMovieId(movieId: number): Promise<any> {
+        try {
+            // db 조회
+            const movieList = this.db.getObject<any[]>("/chart/daum");
+            return movieList.filter((movie) => movie.id == movieId)[0];
+        } catch (error) {
+            this.logger.error('saveDaumMovieCharts error!');
+        }
+    }
+
+    // 영화 목록
+    public async findAllDaumMovieSummary() {
+        try {
+            this.logger.debug('start findAllDaumMovieSummary');
+            const movieList = this.db.getObject<any[]>("/chart/daum");
+            return movieList.map((movieInfo) => {
+               return {
+                   id: movieInfo.id,
+                   name: movieInfo.name,
+                   runningTime:movieInfo.runningTime,
+                   openDate:movieInfo.openDate,
+               }
+            });
+        } catch (error) {
+            this.logger.error('saveDaumMovieCharts error!');
+            throw new NotFoundException();
+        }
+    }
+
+    // 모든 다음 영화 목록 & 상세정보
+    public async findAllDaumMovie() {
+        try {
+            this.logger.debug('start findAllDaumMovie');
+            return this.db.getObject<any[]>("/chart/daum");
+        } catch (error) {
+            this.logger.error('saveDaumMovieCharts error!');
+            throw new NotFoundException();
         }
     }
 }
