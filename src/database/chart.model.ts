@@ -9,4 +9,10 @@ interface MovieDetail {
     actor: string[],
 }
 
-export type {MovieSummary, MovieDetail};
+interface DaumMovieSummary {
+    id: number;
+    titleKorean: string;
+    countryMovieInformation: { duration: number; releaseDate: string; };
+}
+
+export type {MovieSummary, MovieDetail, DaumMovieSummary};

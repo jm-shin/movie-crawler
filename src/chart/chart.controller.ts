@@ -32,4 +32,10 @@ export class ChartController {
         this.logger.debug('getAllChartByCGV');
         return this.chartService.getAllChartByCGV();
     }
+
+    @Get('daum/movies')
+    public getAllChartByDaum() {
+        this.logger.debug('getAllChartByDaum');
+        return this.chartService.getAllChartByDaum();
+    }
 }

@@ -42,4 +42,13 @@ export class ChartService {
             throw new InternalServerErrorException();
         }
     }
+
+    public async getAllChartByDaum() {
+        try {
+            return await this.scrapService.scrapDaumMoiveSummary();
+        } catch (error) {
+            this.logger.error('getAllChartByDaum 에러 발생');
+            throw new InternalServerErrorException();
+        }
+    }
 }
