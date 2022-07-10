@@ -6,10 +6,23 @@ import {Movie, MovieSummary} from "../common/interface/movie.interface";
 export class ChartController {
     constructor(
         private chartService: ChartService
-    ) {
-    }
+    ) {}
 
     private readonly logger = new Logger(ChartController.name);
+
+    @UseInterceptors(CacheInterceptor)
+    @Get('myname')
+    public myName() {
+        console.log('my name is....');
+        return 'jongmin';
+    }
+
+    @UseInterceptors(CacheInterceptor)
+    @Post('myname')
+    public myName2() {
+        console.log('my name is....');
+        return 'jongmin';
+    }
 
     // 다음 영화
     // 다음 영화 스크래핑

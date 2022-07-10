@@ -4,12 +4,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/main.ts",
-    "build:clean": "rimraf .next",
-    "build:ui": "npx next build",
-    "build:server": "npx tsc --project tsconfig.server.json && npx babel .next/production-server -d .next/production-server --extensions \".js\"",
-    "build": "yarn build:clean && yarn build:ui && yarn build:server",
-    "start": "cross-env NODE_ENV=production node .next/production-server/src/main.js"
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "nest start",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^8.4.4",
@@ -22,13 +23,12 @@
     "cheerio": "^1.0.0-rc.12",
     "cross-env": "^7.0.3",
     "jest": "^28.1.2",
-    "nest-next": "^9.6.0",
-    "next": "12.1.5",
+    "nest-winston": "^1.6.2",
     "node-json-db": "^1.6.0",
-    "react": "18.0.0",
-    "react-dom": "18.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.5.5"
+    "rxjs": "^7.5.5",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "3.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",

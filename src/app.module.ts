@@ -1,26 +1,25 @@
-import {Module} from '@nestjs/common';
-import {RenderModule} from 'nest-next';
-import Next from 'next';
-import {AppController} from './app.controller';
+import {MiddlewareConsumer, Module, NestModule} from '@nestjs/common';
 import {ChartModule} from './chart/chart.module';
 import {DatabaseModule} from './database/database.module';
 import {ScrapModule} from './scrap/scrap.module';
 import {ScheduleModule} from "@nestjs/schedule";
+import {WinstonModule} from "nest-winston";
+import {transports} from "./common/config/winston.config";
+import {LoggerMiddleware} from "./common/middleware/logger.middleware";
 
 @Module({
     imports: [
         ScheduleModule.forRoot(),
-        RenderModule.forRootAsync(
-            Next({
-                dev: process.env.NODE_ENV !== 'production',
-                conf: {useFilesystemPublicRoutes: false},
-            }),
-        ),
+        WinstonModule.forRoot(transports),
         ChartModule,
         DatabaseModule,
         ScrapModule,
-    ],
-    controllers: [AppController],
+    ]
 })
-export class AppModule {
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer): any {
+        consumer
+            .apply(LoggerMiddleware)
+            .forRoutes('*');
+    }
 }
