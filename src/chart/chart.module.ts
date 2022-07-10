@@ -6,7 +6,7 @@ import {ScrapModule} from "../scrap/scrap.module";
 
 @Module({
     imports: [
-        CacheModule.register({ttl: 60}),
+        CacheModule.register({ttl: 180}),
         DatabaseModule,
         ScrapModule,
     ],

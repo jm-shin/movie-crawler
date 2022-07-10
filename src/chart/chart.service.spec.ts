@@ -143,29 +143,11 @@ describe('ChartService', () => {
     it('should have a findByDaumMovieId function', () => {
       expect(typeof service.findByDaumMovieId).toBe('function');
     });
-    it('movieId와 일치하는 결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findByDaumMovieId(2);
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
-    });
   });
 
   describe('findAllDaumMovieSummary', () => {
     it('should have a findAllDaumMovieSummary function', () => {
       expect(typeof service.findAllDaumMovieSummary).toBe('function');
-    });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findAllDaumMovieSummary();
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
     });
   });
 
@@ -173,29 +155,11 @@ describe('ChartService', () => {
     it('should have a findAllDaumMovie function', () => {
       expect(typeof service.findAllDaumMovie).toBe('function');
     });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findAllDaumMovie();
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
-    });
   });
 
   describe('findByNaverMovieId', () => {
     it('should have a findByNaverMovieId function', () => {
       expect(typeof service.findByNaverMovieId).toBe('function');
-    });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findByNaverMovieId(5);
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
     });
   });
 
@@ -203,29 +167,11 @@ describe('ChartService', () => {
     it('should have a findAllNaverMovieSummary function', () => {
       expect(typeof service.findAllNaverMovieSummary).toBe('function');
     });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findAllNaverMovieSummary();
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
-    });
   });
 
   describe('findAllNaverMovie', () => {
     it('should have a findAllNaverMovie function', () => {
       expect(typeof service.findAllNaverMovie).toBe('function');
-    });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findAllNaverMovie();
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
     });
   });
 
@@ -233,29 +179,11 @@ describe('ChartService', () => {
     it('should have a findByCGVMovieId function', () => {
       expect(typeof service.findByCGVMovieId).toBe('function');
     });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findByCGVMovieId(7);
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
-    });
   });
 
   describe('findAllCGVMovieSummary', () => {
     it('should have a findAllCGVMovieSummary function', () => {
       expect(typeof service.findAllCGVMovieSummary).toBe('function');
-    });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findAllCGVMovieSummary();
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
     });
   });
 
@@ -263,15 +191,5 @@ describe('ChartService', () => {
     it('should have a findAllCGVMovie function', () => {
       expect(typeof service.findAllCGVMovie).toBe('function');
     });
-    it('결과가 없으면 404 NotFoundException', async () => {
-      repositoryMock.getObject.mockReturnValue(NotFoundException);
-      try {
-        await service.findAllCGVMovie();
-      } catch (error) {
-        expect(error).toThrowError(NotFoundException);
-        expect(error).toBeInstanceOf(404);
-      }
-    });
   });
-
 });

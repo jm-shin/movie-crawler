@@ -5,6 +5,8 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { DaumMovieSummary, Movie } from '../common/interface/movie.interface';
 import { TARGET_URL_CGV, TARGET_URL_CGV_SECOND, TARGET_URL_DAUM, TARGET_URL_NAVER } from './scrap.constants';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { DATABASE_CGV, DATABASE_DAUM, DATABASE_NAVER } from '../chart/chart.constants';
 
 @Injectable()
 export class ScrapService {
@@ -15,8 +17,11 @@ export class ScrapService {
   ) {
   }
 
-  //TODO: Cron () 30분 간격
+  @Cron(CronExpression.EVERY_30_MINUTES)
   public async scrapingMovieFromDaum(): Promise<void | Awaited<Movie>[]> {
+
+    this.logger.debug('daum movie: start scraping');
+
     try {
       const promiseUrls = await axios.get(TARGET_URL_DAUM).then((response) => {
         return response.data.contents.map((movie: DaumMovieSummary) => {
@@ -50,7 +55,7 @@ export class ScrapService {
           return response;
         });
 
-      await this.db.push('/chart/daum', movieResult);
+      await this.db.push(DATABASE_DAUM, movieResult);
 
       return movieResult;
     } catch (error) {
@@ -59,11 +64,11 @@ export class ScrapService {
     }
   }
 
+  @Cron(CronExpression.EVERY_30_MINUTES)
   public async scrapingMovieFromNaver(): Promise<Movie[]> {
-
-    this.logger.debug('start scrapingMovieListFromNaverMovie...');
-
     let crawledMovie: Movie[] = [];
+
+    this.logger.debug('naver movie: start scraping');
 
     try {
       await axios.get(TARGET_URL_NAVER).then((response) => {
@@ -90,7 +95,7 @@ export class ScrapService {
 
       const result = crawledMovie.filter(m => m.name);
 
-      await this.db.push('/chart/naver', result);
+      await this.db.push(DATABASE_NAVER, result);
 
       return result;
     } catch (error) {
@@ -100,10 +105,11 @@ export class ScrapService {
 
   }
 
+  @Cron(CronExpression.EVERY_30_MINUTES)
   public async scrapingMovieFromCGV() {
-    this.logger.debug('Called scrapCGVMovies function');
-
     const movieIndex: any[] = [];
+
+    this.logger.debug('cgv movie: start scraping');
 
     try {
       await axios.get(TARGET_URL_CGV).then((response) => {
@@ -152,7 +158,7 @@ export class ScrapService {
           return response;
         });
 
-      await this.db.push('/chart/cgv', movieResult);
+      await this.db.push(DATABASE_CGV, movieResult);
 
       return movieResult;
     } catch (error) {
