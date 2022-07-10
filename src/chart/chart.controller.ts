@@ -1,7 +1,8 @@
-import {CacheInterceptor, Controller, Get, Logger, Param, Post, UseInterceptors} from "@nestjs/common";
+import {CacheInterceptor, Controller, Get, HttpCode, Logger, Param, Post, UseInterceptors} from "@nestjs/common";
 import {ChartService} from "./chart.service";
 import {Movie, MovieSummary} from "../common/interface/movie.interface";
 
+@UseInterceptors(CacheInterceptor)
 @Controller('movie-chart')
 export class ChartController {
     constructor(
@@ -10,24 +11,10 @@ export class ChartController {
 
     private readonly logger = new Logger(ChartController.name);
 
-    @UseInterceptors(CacheInterceptor)
-    @Get('myname')
-    public myName() {
-        console.log('my name is....');
-        return 'jongmin';
-    }
-
-    @UseInterceptors(CacheInterceptor)
-    @Post('myname')
-    public myName2() {
-        console.log('my name is....');
-        return 'jongmin';
-    }
-
     // 다음 영화
     // 다음 영화 스크래핑
-    @UseInterceptors(CacheInterceptor)
     @Post('daum/movies')
+    @HttpCode(200)
     public createDaumMovieCharts(): Promise<void | Awaited<Movie | { success: boolean }>[]> {
         this.logger.debug('start scrapingMovieListFromDaumMoive');
         return this.chartService.saveDaumMovieCharts();
@@ -58,8 +45,8 @@ export class ChartController {
 
     // 네이버 영화
     // 네이버 영화 모든 영화 목록 & 상세정보 크롤링
-    @UseInterceptors(CacheInterceptor)
     @Post('naver/movies')
+    @HttpCode(200)
     public createNaverMovieCharts(): Promise<Movie[]> {
         this.logger.debug('start! getHtml');
         return this.chartService.saveNaverMovieCharts();
@@ -90,8 +77,8 @@ export class ChartController {
 
     // CGV
     // CGV 영화 스크래핑
-    @UseInterceptors(CacheInterceptor)
     @Post('cgv/movies')
+    @HttpCode(200)
     public createCGVMovieCharts() {
         this.logger.debug('createCGVMovieCharts');
         return this.chartService.saveCGVMovieCharts();

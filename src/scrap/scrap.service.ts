@@ -3,33 +3,27 @@ import {DATABASE_CONNECTION} from "../database/database.constants";
 import {JsonDB} from "node-json-db";
 import axios from "axios";
 import * as cheerio from "cheerio";
-import {ScrapInterface} from "./scrap.interface";
 import {DaumMovieSummary, Movie} from "../common/interface/movie.interface";
+import {TARGET_URL_CGV, TARGET_URL_DAUM, TARGET_URL_NAVER} from "./scrap.constants";
 
 @Injectable()
 export class ScrapService {
     constructor(
         @Inject(DATABASE_CONNECTION) private db: JsonDB
-    ) {
-    }
+    ) {}
 
     private readonly logger = new Logger(ScrapService.name);
 
-    // 다음영화 - 현재 개봉작
+    //TODO: Cron () 30분 간격
+    // 다음영화 - 스크래핑
     public async scrapingMovieListFromDaumMovie(): Promise<void | Awaited<Movie | { success: boolean }>[]> {
         try {
-            const promiseUrls = await axios.get("https://movie.daum.net/api/premovie?page=1&size=35&flag=Y", {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
-                    'Referer': 'https://movie.daum.net/premovie/theater'
-                }
-            }).then((response) => {
+            const promiseUrls = await axios.get(TARGET_URL_DAUM).then((response) => {
                 return response.data.contents.map((movie: DaumMovieSummary) => {
                     return `https://movie.daum.net/api/movie/${movie.id}/main`;
                 });
             })
 
-            //TODO: openDate string > Date parse
             function fetchData(URL: string) {
                 return axios.get(URL)
                     .then(function (response) {
@@ -83,7 +77,7 @@ export class ScrapService {
 
         let crawledMovie: Movie[] = [];
 
-        await axios.get("https://movie.naver.com/movie/running/current.nhn").then((response) => {
+        await axios.get(TARGET_URL_NAVER).then((response) => {
             const $ = cheerio.load(response.data);
             const $movieList = $("div.lst_wrap ul.lst_detail_t1").children("li");
             $movieList.each(function (i) {
@@ -124,7 +118,7 @@ export class ScrapService {
 
         const movieIndex: any[] = [];
 
-        await axios.get("http://www.cgv.co.kr/movies/").then((response) => {
+        await axios.get(TARGET_URL_CGV).then((response) => {
             const $ = cheerio.load(response.data);
             const $movieChart = $("div.sect-movie-chart ol").children("li");
 

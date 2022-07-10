@@ -3,14 +3,11 @@ import {ChartModule} from './chart/chart.module';
 import {DatabaseModule} from './database/database.module';
 import {ScrapModule} from './scrap/scrap.module';
 import {ScheduleModule} from "@nestjs/schedule";
-import {WinstonModule} from "nest-winston";
-import {transports} from "./common/config/winston.config";
 import {LoggerMiddleware} from "./common/middleware/logger.middleware";
 
 @Module({
     imports: [
         ScheduleModule.forRoot(),
-        WinstonModule.forRoot(transports),
         ChartModule,
         DatabaseModule,
         ScrapModule,
