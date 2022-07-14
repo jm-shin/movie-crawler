@@ -1,4 +1,4 @@
-# Web-Automation Developer 사전과제_영화목록
+# 영화 현재 상영목록 크롤링
 
 다음은 구현한 내용입니다.
 
