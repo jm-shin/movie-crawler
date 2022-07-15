@@ -1,7 +1,5 @@
 # 영화 현재 상영목록 크롤링
 
-다음은 구현한 내용입니다.
-
 * TypeScript로 구현
 * axios, nest.js, jest, node-json-db를 활용
 * cheerio 사용
@@ -18,10 +16,10 @@
 
 |URL|method|description|
 |---|---|---|
-|POST|/movie-chart/${vendor}/movies|모든 영화 정보 스크래핑|
-|GET|/movie-chart/${vendor}/movie/${movieId}|영화 상세정보|
-|GET|/movie-chart/${vendor}/summary|영화 목록|
-|GET|/movie-chart/${vendor}/movies|모든 영화 목록 & 상세정보|
+|POST|/chart/${vendor}/movies|모든 영화 정보 스크래핑|
+|GET|/chart/${vendor}/movie/${movieId}|영화 상세정보|
+|GET|/chart/${vendor}/summary|영화 목록|
+|GET|/chart/${vendor}/movies|모든 영화 목록 & 상세정보|
 
 ## 설치
 

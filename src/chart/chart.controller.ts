@@ -3,7 +3,7 @@ import { ChartService } from './chart.service';
 import { Movie, MovieSummary } from '../common/interface/movie.interface';
 
 @UseInterceptors(CacheInterceptor)
-@Controller('movie-chart')
+@Controller('chart')
 export class ChartController {
   constructor(
     private chartService: ChartService,

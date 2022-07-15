@@ -6,7 +6,7 @@ interface MovieSummary {
     readonly id: number,
     readonly name: string;
     readonly runningTime: number;
-    readonly openDate: Date | string;
+    readonly openDate: Date;
 }
 
 interface MovieDetail {

@@ -7,6 +7,7 @@ import { DaumMovieSummary, Movie } from '../common/interface/movie.interface';
 import { TARGET_URL_CGV, TARGET_URL_CGV_SECOND, TARGET_URL_DAUM, TARGET_URL_NAVER } from './scrap.constants';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DATABASE_CGV, DATABASE_DAUM, DATABASE_NAVER } from '../chart/chart.constants';
+import {data} from "cheerio/lib/api/attributes";
 
 @Injectable()
 export class ScrapService {
@@ -33,11 +34,13 @@ export class ScrapService {
         return axios.get(URL)
           .then(function(response) {
             const movie = response.data;
+            const date = movie.movieCommon?.countryMovieInformation[0]?.releaseDate;
+
             return {
               id: movie.movieCommon?.id,
               name: movie.movieCommon?.titleKorean,
               runningTime: movie.movieCommon?.countryMovieInformation[0]?.duration,
-              openDate: movie.movieCommon?.countryMovieInformation[0]?.releaseDate,
+              openDate: new Date(`${date?.slice(0,4)}-${date?.slice(4,6)}-${date?.slice(6)}`),
               director: movie.casts?.filter((v: { movieJob: { role: string; }; }) => v.movieJob.role == '감독')
                 .map((director: { nameKorean: string; }) => director.nameKorean),
               actor: movie.casts?.filter((v: { movieJob: { role: string; }; }) => v.movieJob.role == '주연' || v.movieJob.role == '출연')
@@ -143,8 +146,8 @@ export class ScrapService {
                 .replace(/ /gi, '').split(', '),
               runningTime: Number($contents.find('dd').text()
                 .match(/(?<=, ).*?(?=분, )/gi)?.toString()),
-              openDate: $contents.text().replace(/\t/gi, '').replace(/\n/gi, '')
-                .replace(/ /gi, '').match(/\d{4}.\d{2}.\d{2}/)?.toString(),
+              openDate: new Date($contents.text().replace(/\t/gi, '').replace(/\n/gi, '')
+                .replace(/ /gi, '').match(/\d{4}.\d{2}.\d{2}/)?.toString()),
             };
           });
       }
