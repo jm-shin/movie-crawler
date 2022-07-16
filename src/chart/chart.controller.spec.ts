@@ -10,7 +10,7 @@ const movies: Movie[] = [{
   'id': 0,
   'name': '탑건: 매버릭',
   'runningTime': null,
-  'openDate': '2022.06.01',
+  'openDate': new Date('2022-06-01'),
   'director': [
     '조셉 코신스키',
   ],
@@ -30,7 +30,7 @@ const movies: Movie[] = [{
     'id': 1,
     'name': '토르: 러브 앤 썬더',
     'runningTime': 119,
-    'openDate': '2022-07-05T15:00:00.000Z',
+    'openDate': new Date('2022-07-05T15:00:00.000Z'),
     'director': ['타이카 와이티티'],
     'actor': ['크리스 헴스워스', '나탈리 포트만', '테사 톰슨', '크리스찬 베일', '타이카 와이티티', '크리스 프랫'],
   }];
@@ -40,33 +40,15 @@ const movieSummary: MovieSummary[] = [
     "id": 7,
     "name": "헤어질 결심",
     "runningTime": 138,
-    "openDate": "2022-06-28T15:00:00.000Z"
+    "openDate": new Date("2022-06-28T15:00:00.000Z")
   },
   {
     "id": 8,
     "name": "위대한 침묵",
     "runningTime": 124,
-    "openDate": "2022-06-28T15:00:00.000Z"
+    "openDate": new Date("2022-06-28T15:00:00.000Z")
   },
 ]
-
-const movieDetail: Movie = {
-  "id": 0,
-  "name": "토르: 러브 앤 썬더",
-  "runningTime": 119,
-  "openDate": "2022-07-05T15:00:00.000Z",
-  "director": [
-    "타이카 와이티티"
-  ],
-  "actor": [
-    "크리스 헴스워스",
-    "나탈리 포트만",
-    "테사 톰슨",
-    "크리스찬 베일",
-    "타이카 와이티티",
-    "크리스 프랫"
-  ]
-}
 
 describe('ChartController', () => {
   let controller: ChartController;

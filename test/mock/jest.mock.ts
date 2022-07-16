@@ -1,7 +1,7 @@
 import { MockType } from './mock.type';
-import { ChartService } from '../../dist/chart/chart.service';
+import { ChartService } from 'chart/chart.service'
 import { JsonDB } from 'node-json-db';
-import { ScrapService } from '../../dist/scrap/scrap.service';
+import { ScrapService } from 'scrap/scrap.service';
 
 export const ChartServiceFactory: () => MockType<ChartService> = jest.fn(
   () => ({
