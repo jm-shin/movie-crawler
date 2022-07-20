@@ -1,5 +1,5 @@
 {
-  "name": "web-crawler",
+  "name": "movie-crawler",
   "author": "jongmin shin",
   "version": "1.0.0",
   "main": "index.js",
