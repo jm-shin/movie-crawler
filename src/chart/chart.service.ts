@@ -27,7 +27,11 @@ export class ChartService {
   public async findByDaumMovieId(movieId: number): Promise<MovieSummary> {
     try {
       const movieList = this.db.getObject<Movie[]>(DATABASE_DAUM);
-      return movieList.filter((movie) => movie.id == movieId)[0];
+      const result =  movieList.filter((movie) => movie.id == movieId)[0];
+      if (!result) {
+        throw new Error();
+      }
+      return result
     } catch (error) {
       this.logger.error(error);
       throw new NotFoundException();
@@ -72,6 +76,9 @@ export class ChartService {
   public async findByNaverMovieId(movieId: number): Promise<MovieSummary> {
     try {
       const movieList: Movie[] = this.db.getObject<Movie[]>(DATABASE_NAVER);
+      if (!movieList[movieId]) {
+          throw new Error();
+      }
       return movieList[movieId];
     } catch (error) {
       this.logger.error(error);
@@ -117,7 +124,11 @@ export class ChartService {
   public async findByCGVMovieId(movieId: number): Promise<MovieSummary> {
     try {
       const movieList: Movie[] = this.db.getObject<Movie[]>(DATABASE_CGV);
-      return movieList.filter((movie) => movie.id == movieId)[0];
+      const result = movieList.filter((movie) => movie.id == movieId)[0];
+      if (!result) {
+          throw new Error();
+      }
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw new NotFoundException();
