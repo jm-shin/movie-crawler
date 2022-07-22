@@ -1,6 +1,7 @@
 import { CacheInterceptor, Controller, Get, HttpCode, Logger, Param, Post, UseInterceptors } from '@nestjs/common';
 import { ChartService } from './chart.service';
 import { Movie, MovieSummary } from '../common/interface/movie.interface';
+import {Observable} from "rxjs";
 
 @UseInterceptors(CacheInterceptor)
 @Controller('chart')
@@ -20,9 +21,9 @@ export class ChartController {
 
   // 다음 영화 - 상세 정보
   @Get('daum/movie/:movieId')
-  public getDaumMovieDetail(
+  getDaumMovieDetail(
     @Param('movieId') movieId: number,
-  ): Promise<MovieSummary> {
+  ): Observable<MovieSummary> {
     return this.chartService.findByDaumMovieId(movieId);
   }
 

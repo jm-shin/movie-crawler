@@ -4,6 +4,7 @@ import { JsonDB } from 'node-json-db';
 import { Movie, MovieSummary } from '../common/interface/movie.interface';
 import { ScrapService } from '../scrap/scrap.service';
 import { DATABASE_DAUM, DATABASE_NAVER, DATABASE_CGV } from './chart.constants';
+import {EMPTY, filter, from, mergeMap, Observable, of, subscribeOn, take, throwIfEmpty} from "rxjs";
 
 @Injectable()
 export class ChartService {
@@ -24,18 +25,13 @@ export class ChartService {
     }
   }
 
-  public async findByDaumMovieId(movieId: number): Promise<MovieSummary> {
-    try {
-      const movieList = this.db.getObject<Movie[]>(DATABASE_DAUM);
-      const result =  movieList.filter((movie) => movie.id == movieId)[0];
-      if (!result) {
-        throw new Error();
-      }
-      return result
-    } catch (error) {
-      this.logger.error(error);
-      throw new NotFoundException();
-    }
+  findByDaumMovieId(movieId: number): Observable<MovieSummary> {
+      return from(this.db.getObject<Movie[]>(DATABASE_DAUM)).pipe(
+          filter(movie => movie.id == movieId),
+          take(1),
+          mergeMap((p) => (p ? of(p) : EMPTY)),
+          throwIfEmpty(() => new NotFoundException(`movie:$id was not found`))
+      );
   }
 
   public async findAllDaumMovieSummary(): Promise<MovieSummary[]> {
