@@ -148,12 +148,17 @@ describe('ChartService', () => {
             expect(typeof service.findByDaumMovieId).toBe('function');
         });
         it('특정 아이디로 다음영화를 검색해야한다.', async () => {
-            expect(await service.findByDaumMovieId(114329)).toEqual(movies[0]);
+            expect(service.findByDaumMovieId(114329).subscribe({
+                next: (data) => {
+                    expect(data).toBe(movies[0]);
+                },
+                error: (error) => console.log(error),
+            }));
         });
-        it('id 검색 결과 필드는 6개여야 한다.', async () => {
-            const movieResult = await service.findByDaumMovieId(114329)
+        it('id 검색 결과 필드는 6개여야 한다.', () => {
+            const movieResult = service.findByDaumMovieId(114329).subscribe();
             const len = Object.keys(movieResult).length;
-            expect(len).toEqual(6);
+            expect(len).toStrictEqual(6);
         });
     });
 
