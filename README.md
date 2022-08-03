@@ -14,7 +14,7 @@
 * vendor는 "daum" | "naver" | "cgv"
 * default port: 3000
 
-|URL|method|description|
+|Method|URL|Description|
 |---|---|---|
 |POST|/chart/${vendor}/movies|모든 영화 정보 스크래핑|
 |GET|/chart/${vendor}/movie/${movieId}|영화 상세정보|
